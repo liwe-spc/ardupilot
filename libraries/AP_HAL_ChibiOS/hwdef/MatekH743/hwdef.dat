@@ -2,8 +2,7 @@
 MCU STM32H7xx STM32H743xx
 APJ_BOARD_ID AP_HW_MATEKH743
 
-# 时钟配置：补齐脚本要求的定义
-# 即使我们尝试救砖，也给它一个标准值防止报错
+# 时钟配置 (保持定义，脚本必需)
 OSCILLATOR_HZ 25000000
 STM32_PLLM_VALUE 25
 STM32_PLLN_VALUE 480
@@ -20,28 +19,30 @@ PA12 OTG_FS_DP OTG1
 PA13 JTMS-SWDIO SWD
 PA14 JTCK-SWCLK SWD
 
-# --- 强制修复 ADC DMA 报错的核心定义 ---
-# 必须有 ADC1 引脚才能自动生成 DMA 映射
+# --- 修复 ADC DMA 报错 ---
+# 不要手动用 define，直接定义引脚，让系统自己去分配 DMA
 PC0 BATT_VOLTAGE_SENS ADC1 SCALE(1)
 PC1 BATT_CURRENT_SENS ADC1 SCALE(1)
-# 显式告诉系统 ADC 使用哪个 DMA，防止它在 common 脚本里报错
-define STM32_ADC_ADC12_DMA_STREAM STM32_DMA_STREAM_ID(1, 1)
 
-# --- LED (测试目标) ---
+# --- 修复 SERIAL 报错 ---
+# 必须定义至少一个硬件串口，否则驱动会报错
+# 按照你的图纸定义 UART7
+PE7 UART7_RX UART7
+PE8 UART7_TX UART7
+SERIAL_ORDER OTG1 UART7
+
+# --- LED (测试核心) ---
 PE3 LED0 OUTPUT LOW GPIO(90)
 PE4 LED1 OUTPUT LOW GPIO(91)
 define HAL_GPIO_A_LED_PIN 90
 define HAL_GPIO_B_LED_PIN 91
 
-# 禁用所有传感器探测，防止卡死在初始化阶段
+# 彻底屏蔽所有传感器探测，防止卡死
 define HAL_INS_PROBE_LIST ""
 define HAL_BARO_PROBE_LIST ""
 define HAL_COMPASS_DEFAULT_PROBE_LIST ""
 
-# 极简串口顺序
-SERIAL_ORDER OTG1
-
-# 存储定义
+# 基础存储定义
 define HAL_STORAGE_SIZE 32768
 STORAGE_FLASH_PAGE 14
 env BUILD_ABIN True
