@@ -153,18 +153,14 @@ jobs:
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
           PATH="/opt/gcc-arm-none-eabi-10/bin:$PATH"
           
-          # 1. 配置板子
+          # 1. 配置
           ./modules/waf/waf-light configure --board MatekH743
           
-          # 2. 编译 Rover (这一步生成 .apj 和 .bin)
-          ./modules/waf/waf-light rover
-          
-          # 3. 【关键】强制生成带 Bootloader 的 .hex 文件
-          # 注意：ArduPilot 较新版本使用此方式合成 hex
-          python3 Tools/scripts/build_flash_bundle.py build/MatekH743/bin/ardurover.apj
+          # 2. 编译并直接要求生成 hex (Waf 会自动调用合成脚本)
+          ./modules/waf/waf-light rover --rsave
 
       - name: Archive Final Firmware
         uses: actions/upload-artifact@v4
         with:
           name: MatekH743-Ready-To-Flash
-          path: build/MatekH743/bin/*.hex  # 使用通配符，只要是 hex 都抓取
+          path: build/MatekH743/bin/*.hex
