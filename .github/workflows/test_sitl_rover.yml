@@ -166,9 +166,9 @@ jobs:
     strategy:
       fail-fast: false  # don't cancel if a job from the matrix fails
       matrix:
-        toolchain: [
-            base,  # GCC
+        build: [
             clang,
+            MatekH743  # 手动添加这一行
         ]
     steps:
       # git checkout the PR
