@@ -184,3 +184,13 @@ jobs:
           Tools/scripts/build_ci.sh
           ccache -s
           ccache -z
+          # ==========================================
+      # 新增：上传编译好的固件（请确保缩进与上面的 steps 对齐）
+      # ==========================================
+      - name: Archive MatekH743 Firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: MatekH743-Firmware
+          path: |
+            build/MatekH743/bin/ardurover.hex
+            build/MatekH743/bin/ardurover.apj
