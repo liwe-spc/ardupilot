@@ -141,33 +141,40 @@ jobs:
         toolchain: [chibios]
         gcc: [10]
 
-    steps:  # <--- 确保这里前面只有 4 个空格，且不要有 Tab 键
+    steps:
       - name: Checkout Code
         uses: actions/checkout@v6
         with:
           submodules: 'recursive'
 
-      - name: Build Rover and Force Hex
+      - name: Build and Manual Merge HEX
         shell: bash
         run: |
+          # 1. 环境初始化
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
           PATH="/opt/gcc-arm-none-eabi-10/bin:$PATH"
           
-          # 1. 编译固件和引导程序
+          # 2. 编译 Rover (生成 ardurover.bin)
           ./modules/waf/waf-light configure --board MatekH743
           ./modules/waf/waf-light rover
-          ./modules/waf/waf-light bootloader
           
-          # 2. 手动合成带引导程序的二进制文件 (MatekH743 BL 是 128KB)
-          # 我们创建一个 128KB 的空文件，然后把 BL 填进去，再拼上固件
-          dd if=/dev/zero of=padding.bin bs=1k count=128
-          dd if=build/MatekH743/bin/bootloader.bin of=padding.bin conv=notrunc
-          cat padding.bin build/MatekH743/bin/ardurover.bin > build/MatekH743/bin/ardurover_with_bl.bin
+          # 3. 准备手动缝合 (MatekH743 的引导程序空间是 128KB)
+          # 我们先创建一个 128KB 全为 0xFF 的空白块
+          dd if=/dev/zero bs=1k count=128 | tr "\000" "\377" > padding.bin
           
-          # 3. 将合成的 BIN 转换为 HEX (方便烧录器自动识别地址)
-          arm-none-eabi-objcopy -I binary -O ihex --change-address 0x08000000 build/MatekH743/bin/ardurover_with_bl.bin build/MatekH743/bin/ardurover_with_bl.hex
+          # 将源码自带的预编译引导程序放入这个空白块的头部
+          # 路径使用你日志中确认过的: Tools/bootloaders/MatekH743_bl.bin
+          dd if=Tools/bootloaders/MatekH743_bl.bin of=padding.bin conv=notrunc
+          
+          # 合并：128KB 的引导程序块 + 编译出来的 Rover 固件
+          cat padding.bin build/MatekH743/bin/ardurover.bin > merged.bin
+          
+          # 4. 【核心】将二进制转换为带地址信息的 HEX (起始地址 0x08000000)
+          arm-none-eabi-objcopy -I binary -O ihex --change-address 0x08000000 merged.bin build/MatekH743/bin/ardurover_with_bl.hex
+          
+          echo "Merged HEX created successfully at build/MatekH743/bin/ardurover_with_bl.hex"
 
-      - name: Archive Final Firmware
+      - name: Upload Final Firmware
         uses: actions/upload-artifact@v4
         with:
           name: MatekH743-Ready-To-Flash
