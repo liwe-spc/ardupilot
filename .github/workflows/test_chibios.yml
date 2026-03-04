@@ -149,46 +149,31 @@ jobs:
           - gcc: 10
             toolchain: chibios-clang
 
-    steps:
-      # git checkout the PR
-      - uses: actions/checkout@v6
-        with:
-          submodules: 'recursive'
-      # Put ccache into github cache for faster build
-      - name: Prepare ccache timestamp
-        id: ccache_cache_timestamp
-        run: |
-          NOW=$(date -u +"%F-%T")
-          echo "timestamp=${NOW}" >> $GITHUB_OUTPUT
-      - name: ccache cache files
-        uses: actions/cache@v5
-        with:
-          path: ~/.ccache
-          key: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}-${{steps.ccache_cache_timestamp.outputs.timestamp}}
-          restore-keys: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}  # restore ccache from either previous build on this branch or on master
-      - name: setup ccache
-        run: |
-          . .github/workflows/ccache.env
-      - name: test ${{matrix.config}} ${{ matrix.toolchain }} gcc-${{matrix.gcc}}
-        env:
-          CI_BUILD_TARGET: ${{matrix.config}}
-        shell: bash
-        run: |
-          git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          if [[ ${{ matrix.toolchain }} == "chibios-clang" ]]; then
-            export CC=clang
-            export CXX=clang++
-          fi
-          PATH="/usr/lib/ccache:/opt/gcc-arm-none-eabi-${{matrix.gcc}}/bin:$PATH"
-          PATH="/github/home/.local/bin:$PATH"
-          Tools/scripts/build_ci.sh
-          ccache -s
-          ccache -z
-          # ==========================================
-      # 新增：上传编译好的固件（请确保缩进与上面的 steps 对齐）
-      # ==========================================
-      - name: Archive MatekH743 Firmware
-        uses: actions/upload-artifact@v4
-        with:
-          name: MatekH743-Firmware
-          path: build/MatekH743/bin/
+ steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+      with:
+        submodules: 'recursive'
+
+    - name: Build Rover with Bootloader
+      shell: bash
+      run: |
+        # 1. 基础环境配置
+        git config --global --add safe.directory ${GITHUB_WORKSPACE}
+        PATH="/opt/gcc-arm-none-eabi-10/bin:$PATH"
+        
+        # 2. 配置板型 (MatekH743)
+        ./modules/waf/waf-light configure --board MatekH743
+        
+        # 3. 先编译 Bootloader (生成器需要它来合成 hex)
+        ./modules/waf/waf-light bootloader
+        
+        # 4. 编译 Rover 固件并自动合成带 BL 的 hex 文件
+        ./modules/waf/waf-light rover --bootloader
+
+    - name: Archive Final Firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: MatekH743-Ready-To-Flash
+        path: |
+          build/MatekH743/bin/ardurover_with_bl.hex
