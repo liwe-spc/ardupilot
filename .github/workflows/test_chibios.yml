@@ -191,6 +191,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MatekH743-Firmware
-          path: |
-            build/MatekH743/bin/*.hex
-            build/MatekH743/bin/*.apj
+          path: build/MatekH743/bin/
