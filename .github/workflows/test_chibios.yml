@@ -135,45 +135,29 @@ jobs:
     runs-on: ubuntu-22.04
     container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
     strategy:
-      fail-fast: false  # don't cancel if a job from the matrix fails
+      fail-fast: false
       matrix:
-        config: [
-            MatekH743
-        ]
-        toolchain: [
-            chibios,
-            #chibios-clang,
-        ]
+        config: [MatekH743]
+        toolchain: [chibios]
         gcc: [10]
-        exclude:
-          - gcc: 10
-            toolchain: chibios-clang
 
-steps:
-    - name: Checkout Code
-      uses: actions/checkout@v6
-      with:
-        submodules: 'recursive'
+    steps:  # <--- 确保这里前面只有 4 个空格，且不要有 Tab 键
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          submodules: 'recursive'
 
-    - name: Build Rover with Bootloader
-      shell: bash
-      run: |
-        # 1. 基础环境配置
-        git config --global --add safe.directory ${GITHUB_WORKSPACE}
-        PATH="/opt/gcc-arm-none-eabi-10/bin:$PATH"
-        
-        # 2. 配置板型 (MatekH743)
-        ./modules/waf/waf-light configure --board MatekH743
-        
-        # 3. 先编译 Bootloader (生成器需要它来合成 hex)
-        ./modules/waf/waf-light bootloader
-        
-        # 4. 编译 Rover 固件并自动合成带 BL 的 hex 文件
-        ./modules/waf/waf-light rover --bootloader
+      - name: Build Rover with Bootloader
+        shell: bash
+        run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
+          PATH="/opt/gcc-arm-none-eabi-10/bin:$PATH"
+          ./modules/waf/waf-light configure --board MatekH743
+          ./modules/waf/waf-light bootloader
+          ./modules/waf/waf-light rover --bootloader
 
-    - name: Archive Final Firmware
-      uses: actions/upload-artifact@v4
-      with:
-        name: MatekH743-Ready-To-Flash
-        path: |
-          build/MatekH743/bin/ardurover_with_bl.hex
+      - name: Archive Final Firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: MatekH743-Ready-To-Flash
+          path: build/MatekH743/bin/ardurover_with_bl.hex
