@@ -152,9 +152,12 @@ jobs:
         run: |
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
           PATH="/opt/gcc-arm-none-eabi-10/bin:$PATH"
+          
+          # 1. 重新配置环境
           ./modules/waf/waf-light configure --board MatekH743
-          ./modules/waf/waf-light bootloader
-          ./modules/waf/waf-light rover --bootloader
+          
+          # 2. 编译 Rover 固件（它会自动检测并嵌入 bootloader）
+          ./modules/waf/waf-light rover
 
       - name: Archive Final Firmware
         uses: actions/upload-artifact@v4
