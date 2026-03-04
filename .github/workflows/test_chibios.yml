@@ -140,6 +140,7 @@ jobs:
         config: [
             stm32f7,
             stm32h7,
+            MatekH743-rover,
             fmuv2-plane,
             periph-build,
             iofirmware,
