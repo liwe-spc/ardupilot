@@ -2,7 +2,7 @@
 MCU STM32H7xx STM32H743xx
 APJ_BOARD_ID AP_HW_MATEKH743
 
-# 时钟配置 (保持定义，脚本必需)
+# 时钟配置 (25MHz 晶振，H7 启动必需)
 OSCILLATOR_HZ 25000000
 STM32_PLLM_VALUE 25
 STM32_PLLN_VALUE 480
@@ -13,36 +13,31 @@ STM32_PLLR_VALUE 2
 FLASH_SIZE_KB 2048
 FLASH_RESERVE_START_KB 128
 
-# USB
+# USB 引脚
 PA11 OTG_FS_DM OTG1
 PA12 OTG_FS_DP OTG1
 PA13 JTMS-SWDIO SWD
 PA14 JTCK-SWCLK SWD
 
-# --- 修复 ADC DMA 报错 ---
-# 不要手动用 define，直接定义引脚，让系统自己去分配 DMA
+# ADC (用于满足驱动初始化，避免 DMA 报错)
 PC0 BATT_VOLTAGE_SENS ADC1 SCALE(1)
 PC1 BATT_CURRENT_SENS ADC1 SCALE(1)
 
-# --- 修复 SERIAL 报错 ---
-# 必须定义至少一个硬件串口，否则驱动会报错
-# 按照你的图纸定义 UART7
+# SERIAL (满足底层 USART 驱动要求)
 PE7 UART7_RX UART7
 PE8 UART7_TX UART7
 SERIAL_ORDER OTG1 UART7
 
-# --- LED (测试核心) ---
+# LED (我们的测试目标)
 PE3 LED0 OUTPUT LOW GPIO(90)
 PE4 LED1 OUTPUT LOW GPIO(91)
 define HAL_GPIO_A_LED_PIN 90
 define HAL_GPIO_B_LED_PIN 91
 
-# 彻底屏蔽所有传感器探测，防止卡死
-define HAL_INS_PROBE_LIST ""
-define HAL_BARO_PROBE_LIST ""
-define HAL_COMPASS_DEFAULT_PROBE_LIST ""
+# 注意：这里我们彻底不写任何 SPIDEV 或 IMU 定义
+# ArduPilot 会因为找不到硬件定义而直接跳过传感器初始化，不会卡死
 
-# 基础存储定义
+# 存储定义
 define HAL_STORAGE_SIZE 32768
 STORAGE_FLASH_PAGE 14
 env BUILD_ABIN True
