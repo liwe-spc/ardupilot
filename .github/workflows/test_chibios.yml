@@ -192,5 +192,5 @@ jobs:
         with:
           name: MatekH743-Firmware
           path: |
-            build/MatekH743/bin/ardurover.hex
-            build/MatekH743/bin/ardurover.apj
+            build/MatekH743/bin/*.hex
+            build/MatekH743/bin/*.apj
