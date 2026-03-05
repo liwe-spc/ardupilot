@@ -2,7 +2,7 @@
 MCU STM32H7xx STM32H743xx
 APJ_BOARD_ID AP_HW_MATEKH743
 
-# 时钟配置 (25MHz 外部晶振 - 既然测到了波形，我们就信任它)
+# 时钟配置 (25MHz 外部晶振，你测到了波形，我们用最稳的 400MHz)
 OSCILLATOR_HZ 25000000
 STM32_PLLM_VALUE 5
 STM32_PLLN_VALUE 160
@@ -19,26 +19,28 @@ PA12 OTG_FS_DP OTG1
 PA13 JTMS-SWDIO SWD
 PA14 JTCK-SWCLK SWD
 
-# ADC (必须定义引脚，否则底层 DMA 映射会报错)
+# ADC (必须有，防止 DMA 报错)
 PC0 BATT_VOLTAGE_SENS ADC1 SCALE(1)
 PC1 BATT_CURRENT_SENS ADC1 SCALE(1)
 
-# SERIAL (UART7 满足底层驱动要求)
+# SERIAL (UART7 对应你的图纸，满足驱动要求)
 PE7 UART7_RX UART7
 PE8 UART7_TX UART7
 SERIAL_ORDER OTG1 UART7
 
-# LED (我们的核心验证点)
+# LED (你的测试目标)
 PE3 LED0 OUTPUT LOW GPIO(90)
 PE4 LED1 OUTPUT LOW GPIO(91)
 define HAL_GPIO_A_LED_PIN 90
 define HAL_GPIO_B_LED_PIN 91
 
-# --- 关键：用 dummy 设备绕过“空语句”报错 ---
-# 定义一个挂在 SPI4 上的虚拟 CS 引脚 (PC14)
-# 这会让编译器生成正常的探测代码，不会报 statement has no effect
-SPIDEV dummy SPI4 DEVID10 PC14 MODE3 1*MHZ 1*MHZ
-IMU Invensense SPI:dummy ROTATION_NONE
+# --- 关键：使用标准设备定义，避开“空宏”报错 ---
+# 定义 SPI4 上的 IMU (即使找不到，也不会报语法错误)
+SPIDEV icm42688 SPI4 DEVID1 PC15 MODE3 2*MHZ 8*MHZ
+IMU Invensensev3 SPI:icm42688 ROTATION_NONE
+
+# 定义一个气压计 (即使没有硬件，定义它能消除 HAL_BARO_PROBE_LIST 报错)
+BARO BMP280 SPI:icm42688
 
 # 存储定义
 define HAL_STORAGE_SIZE 32768
