@@ -2,8 +2,7 @@
 MCU STM32H7xx STM32H743xx
 APJ_BOARD_ID AP_HW_MATEKH743
 
-# 时钟配置 (25MHz 晶振，H7 启动必需)
-# 采用 400MHz 保守主频，确保稳定性
+# 时钟配置 (25MHz 外部晶振 - 既然测到了波形，我们就信任它)
 OSCILLATOR_HZ 25000000
 STM32_PLLM_VALUE 5
 STM32_PLLN_VALUE 160
@@ -14,30 +13,30 @@ STM32_PLLR_VALUE 2
 FLASH_SIZE_KB 2048
 FLASH_RESERVE_START_KB 128
 
-# USB 引脚
+# USB
 PA11 OTG_FS_DM OTG1
 PA12 OTG_FS_DP OTG1
 PA13 JTMS-SWDIO SWD
 PA14 JTCK-SWCLK SWD
 
-# ADC (满足底层驱动初始化要求)
+# ADC (必须定义引脚，否则底层 DMA 映射会报错)
 PC0 BATT_VOLTAGE_SENS ADC1 SCALE(1)
 PC1 BATT_CURRENT_SENS ADC1 SCALE(1)
 
-# SERIAL (满足底层 USART 驱动要求)
+# SERIAL (UART7 满足底层驱动要求)
 PE7 UART7_RX UART7
 PE8 UART7_TX UART7
 SERIAL_ORDER OTG1 UART7
 
-# LED (我们的核心观察点)
+# LED (我们的核心验证点)
 PE3 LED0 OUTPUT LOW GPIO(90)
 PE4 LED1 OUTPUT LOW GPIO(91)
 define HAL_GPIO_A_LED_PIN 90
 define HAL_GPIO_B_LED_PIN 91
 
-# --- 关键：绕过传感器检查且不报语法错误 ---
-# 既然定义空字符串报错，那我们就定义一个根本没用的 SPI 设备
-# 即使硬件上没东西，只要定义了，它就会去尝试初始化，而不会报 "statement has no effect"
+# --- 关键：用 dummy 设备绕过“空语句”报错 ---
+# 定义一个挂在 SPI4 上的虚拟 CS 引脚 (PC14)
+# 这会让编译器生成正常的探测代码，不会报 statement has no effect
 SPIDEV dummy SPI4 DEVID10 PC14 MODE3 1*MHZ 1*MHZ
 IMU Invensense SPI:dummy ROTATION_NONE
 
