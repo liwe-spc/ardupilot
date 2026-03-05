@@ -2,8 +2,7 @@
 MCU STM32H7xx STM32H743xx
 APJ_BOARD_ID AP_HW_MATEKH743
 
-# 时钟配置 (25MHz 晶振)
-# 采用最保守的 400MHz。如果 400M 都不行，说明时钟配置还是有坑
+# 时钟配置 (25MHz 晶振，400MHz 稳健主频)
 OSCILLATOR_HZ 25000000
 STM32_PLLM_VALUE 5
 STM32_PLLN_VALUE 160
@@ -14,32 +13,32 @@ STM32_PLLR_VALUE 2
 FLASH_SIZE_KB 2048
 FLASH_RESERVE_START_KB 128
 
-# 极简 USB 定义 (仅为了不报错)
+# USB 引脚
 PA11 OTG_FS_DM OTG1
 PA12 OTG_FS_DP OTG1
 PA13 JTMS-SWDIO SWD
 PA14 JTCK-SWCLK SWD
 
-# --- 核心：强制点亮 LED ---
-# 我们不使用 LED0/LED1 这种逻辑宏，直接定义为输出
-# 尝试将 PE3 置为高电平，PE4 置为低电平（防止你不知道 LED 是共阴还是共阳）
-PE3 LED_RED OUTPUT HIGH GPIO(90)
-PE4 LED_BLUE OUTPUT LOW GPIO(91)
+# 【修复报错】必须定义一个 ADC 引脚，让系统自动分配 DMA
+PC0 BATT_VOLTAGE_SENS ADC1 SCALE(1)
+PC1 BATT_CURRENT_SENS ADC1 SCALE(1)
 
-# 定义 ArduPilot 必需的 LED 宏，指向这两个引脚
-define HAL_GPIO_A_LED_PIN 90
-define HAL_GPIO_B_LED_PIN 91
-
-# 强制屏蔽所有导致编译报错的传感器逻辑
-# 注意：为了过编译又不产生 statement has no effect，我们直接定义一个伪引脚
-PC15 DUMMY_PIN OUTPUT LOW
-
-# 串口定义（必需）
+# SERIAL (UART7 对应你的图纸，满足驱动要求)
 PE7 UART7_RX UART7
 PE8 UART7_TX UART7
 SERIAL_ORDER OTG1 UART7
 
-# 存储定义（必需）
-define HAL_STORAGE_SIZE 16384
+# LED (我们的测试目标)
+# 尝试两种不同的初始化状态，增加看到亮灯的概率
+PE3 LED0 OUTPUT LOW GPIO(90)
+PE4 LED1 OUTPUT HIGH GPIO(91)
+define HAL_GPIO_A_LED_PIN 90
+define HAL_GPIO_B_LED_PIN 91
+
+# 注意：这里我们完全不写 SPIDEV 或 IMU 定义
+# ArduPilot 会自动跳过传感器探测，不会卡死，也不会有 "statement has no effect" 错误
+
+# 存储定义
+define HAL_STORAGE_SIZE 32768
 STORAGE_FLASH_PAGE 14
 env BUILD_ABIN True
