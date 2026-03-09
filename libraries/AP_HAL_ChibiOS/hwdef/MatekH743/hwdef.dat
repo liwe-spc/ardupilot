@@ -73,7 +73,7 @@ I2C_ORDER I2C1 I2C2
 # BAROMETER
 # ===============================
 
-BARO SPL06 I2C:2:0x77
+BARO SPL06 I2C:1:0x76
 SET HAL_I2C_BUS_SPEED_2 100000  # 将 I2C2 强制降速到 100kHz（标准模式）
 # ===============================
 # SPI2 (ICM20689)
