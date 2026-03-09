@@ -100,8 +100,8 @@ IMU Invensensev3 SPI:icm42688 INT:IMU1_INT ROTATION_NONE
 # OSD (SPI2)
 # ===============================
 
-PB12 SPI2_OSD_CS CS
-SPIDEV osd SPI2 DEVID3 SPI2_OSD_CS MODE0 1*MHZ 10*MHZ
+#PB12 SPI2_OSD_CS CS
+#SPIDEV osd SPI2 DEVID3 SPI2_OSD_CS MODE0 1*MHZ 10*MHZ
 
 # ===============================
 # SD CARD (SDIO)
