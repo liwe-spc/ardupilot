@@ -49,9 +49,11 @@ SERIAL_ORDER OTG1 UART7
 PE7 UART7_RX UART7
 PE8 UART7_TX UART7
 
-# --- 硬件驱动定义 ---
-# 1. 气压计: 明确指定在 I2C2 上寻找 SPL06
-BARO SPL06 I2C:2
+# --- 气压计驱动配置 ---
+# 删掉之前的 BARO SPL06 I2C:2，改为：
+BARO SPL06
+# 这样固件会自动在 I2C1 和 I2C2 上扫描 SPL06。
+# 既然你 I2C1 没接气压计，它扫描完 I2C1 就会在 I2C2 上找到它。
 
 # 2. SPI 设备表
 SPIDEV icm20689  SPI2 DEVID1 IMU_CS  MODE3  1*MHZ  8*MHZ
