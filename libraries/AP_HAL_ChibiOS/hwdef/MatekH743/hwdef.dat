@@ -51,7 +51,7 @@ PE7 UART7_RX UART7
 PE8 UART7_TX UART7
 
 # --- 气压计驱动配置 ---
-BARO SPL06 I2C:0x76:2
+BARO SPL06 I2C:2:0x76
 
 # --- PWM 输出定义 (全显式格式) ---
 
