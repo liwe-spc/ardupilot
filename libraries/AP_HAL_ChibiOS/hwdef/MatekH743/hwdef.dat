@@ -54,8 +54,8 @@ PC5 RSSI_ADC ADC1
 # GPIO (原 PD0 / PD1)
 # ===============================
 
-PD0 GPIO(100) OUTPUT LOW
-PD1 GPIO(101) OUTPUT LOW
+PD0 GPIO OUTPUT LOW
+PD1 GPIO OUTPUT LOW
 
 # ===============================
 # I2C
