@@ -174,7 +174,7 @@ PD15 TIM4_CH4  TIM4 PWM(10) GPIO(57)
 # WS2812 LED
 # ===============================
 
-PA8 TIM1_CH1 TIM1 PWM_SW_2812 GPIO(95)
+#PA8 TIM1_CH1 TIM1 PWM_SW_2812 GPIO(95)
 
 # ===============================
 # STORAGE
