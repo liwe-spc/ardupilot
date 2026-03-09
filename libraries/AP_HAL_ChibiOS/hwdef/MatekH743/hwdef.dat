@@ -51,7 +51,7 @@ PE8 UART7_TX UART7
 
 # --- 气压计驱动配置 ---
 # 删掉之前的 BARO SPL06 I2C:2，改为：
-BARO SPL06
+BARO SPL06 I2C:1
 # 这样固件会自动在 I2C1 和 I2C2 上扫描 SPL06。
 # 既然你 I2C1 没接气压计，它扫描完 I2C1 就会在 I2C2 上找到它。
 
