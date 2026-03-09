@@ -50,10 +50,29 @@ PE7 UART7_RX UART7
 PE8 UART7_TX UART7
 
 # --- 气压计驱动配置 ---
-# 删掉之前的 BARO SPL06 I2C:2，改为：
-BARO SPL06 I2C:1:0x76
-# 这样固件会自动在 I2C1 和 I2C2 上扫描 SPL06。
-# 既然你 I2C1 没接气压计，它扫描完 I2C1 就会在 I2C2 上找到它。
+# 必须添加这一行，否则脚本不知道先扫哪个总线
+I2C_ORDER I2C1 I2C2
+# --- 气压计定义 ---
+# 既然有了 I2C_ORDER，直接用最简洁的写法即可
+BARO SPL06
+
+# --- PWM 输出定义 (根据原理图核对) ---
+
+# 电调输出 (PWM 1-4)
+PB0  TIM1_CH2N PWM 1  # PWM_1 -> 引脚34
+PB1  TIM1_CH3N PWM 2  # PWM_2 -> 引脚35
+PA0  TIM5_CH1  PWM 3  # PWM_3 -> 引脚22
+PA1  TIM5_CH2  PWM 4  # PWM_4 -> 引脚23
+
+# 舵机输出 (PWM 5-12)
+PA2  TIM5_CH3  PWM 5  # PWM_5 -> 引脚24
+PA3  TIM5_CH4  PWM 6  # PWM_6 -> 引脚25
+PD12 TIM4_CH1  PWM 7  # PWM_7 -> 引脚59
+PD13 TIM4_CH2  PWM 8  # PWM_8 -> 引脚60
+PD14 TIM4_CH3  PWM 9  # PWM_9 -> 引脚61
+PD15 TIM4_CH4  PWM 10 # PWM_10 -> 引脚62
+PE5  TIM9_CH1  PWM 11 # PWM_11 -> 引脚4
+PE6  TIM9_CH2  PWM 12 # PWM_12 -> 引脚5
 
 # 2. SPI 设备表
 SPIDEV icm20689  SPI2 DEVID1 IMU_CS  MODE3  1*MHZ  8*MHZ
