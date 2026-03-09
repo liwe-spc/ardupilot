@@ -154,6 +154,9 @@ jobs:
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
           PATH="/opt/gcc-arm-none-eabi-10/bin:$PATH"
           
+          # 【新增】强制清理 build 目录，解决 Python IndexError/AttributeError 残留
+          rm -rf build/
+          
           # 2. 编译 Rover (生成 ardurover.bin)
           ./modules/waf/waf-light configure --board MatekH743
           ./modules/waf/waf-light rover
