@@ -52,6 +52,8 @@ PE8 UART7_TX UART7
 # --- 气压计驱动配置 ---
 # 必须添加这一行，否则脚本不知道先扫哪个总线
 I2C_ORDER I2C1 I2C2
+# 这一行是填补 IndexError 的关键！
+I2C_DEVICE BARO spl06 I2C2 0x76
 # --- 气压计定义 ---
 # 既然有了 I2C_ORDER，直接用最简洁的写法即可
 BARO SPL06
