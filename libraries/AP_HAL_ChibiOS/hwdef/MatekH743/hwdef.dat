@@ -39,7 +39,7 @@ define HAL_GPIO_B_LED_PIN 91
 # BUZZER
 # ===============================
 
-PA15 BUZZER OUTPUT GPIO(80) LOW
+PA15 BUZZER OUTPUT LOW GPIO(80)
 define HAL_BUZZER_PIN 80
 
 # ===============================
@@ -70,7 +70,7 @@ PB11 I2C2_SDA I2C2
 I2C_ORDER I2C1 I2C2
 
 # ===============================
-# BARO
+# BAROMETER
 # ===============================
 
 BARO SPL06 I2C:2:0x76
@@ -79,26 +79,30 @@ BARO SPL06 I2C:2:0x76
 # SPI2 (ICM20689)
 # ===============================
 
+SPI2
+
 PB13 SPI2_SCK SPI2
 PB14 SPI2_MISO SPI2
 PB15 SPI2_MOSI SPI2
 
-PB12 IMU2_CS CS
-PE10 IMU2_INT INPUT GPIO(70)
+PB12 IMU2_CS CS GPIO(72)
+PE10 IMU2_INT INPUT
 
 SPIDEV icm20689 SPI2 DEVID1 IMU2_CS MODE3 1*MHZ 8*MHZ
-IMU Invensense SPI:icm20689 IMU2_INT ROTATION_NONE
+IMU Invensense SPI:icm20689 INT:IMU2_INT ROTATION_NONE
 
 # ===============================
 # SPI4 (ICM42688)
 # ===============================
 
+SPI4
+
 PE12 SPI4_SCK SPI4
 PE5 SPI4_MISO SPI4
 PE6 SPI4_MOSI SPI4
 
-PE11 IMU1_CS CS
-PE15 IMU1_INT INPUT GPIO(71)
+PE11 IMU1_CS CS GPIO(73)
+PE15 IMU1_INT INPUT
 
 SPIDEV icm42688 SPI4 DEVID2 IMU1_CS MODE3 1*MHZ 8*MHZ
 IMU Invensensev3 SPI:icm42688 INT:IMU1_INT ROTATION_NONE
@@ -163,10 +167,10 @@ PD14 TIM4_CH3 TIM4 PWM(9) GPIO(56)
 PD15 TIM4_CH4 TIM4 PWM(10) GPIO(57)
 
 # ===============================
-# WS2812
+# WS2812 LED
 # ===============================
 
-PA8 TIM1_CH1 TIM1 GPIO(95)
+PA8 TIM1_CH1 TIM1 PWM_SW_2812 GPIO(95)
 
 # ===============================
 # STORAGE
