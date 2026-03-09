@@ -51,6 +51,13 @@ PC1 BATT_CURRENT_SENS ADC1 SCALE(17)
 PC5 RSSI_ADC ADC1
 
 # ===============================
+# GPIO (原 PD0 / PD1)
+# ===============================
+
+PD0 GPIO(100) OUTPUT LOW
+PD1 GPIO(101) OUTPUT LOW
+
+# ===============================
 # I2C
 # ===============================
 
@@ -69,7 +76,7 @@ I2C_ORDER I2C1 I2C2
 BARO SPL06 I2C:2:0x76
 
 # ===============================
-# SPI2  (ICM20689)
+# SPI2 (ICM20689)
 # ===============================
 
 PB13 SPI2_SCK SPI2
@@ -83,7 +90,7 @@ SPIDEV icm20689 SPI2 DEVID1 IMU2_CS MODE3 1*MHZ 8*MHZ
 IMU Invensense SPI:icm20689 INT:IMU2_INT ROTATION_NONE
 
 # ===============================
-# SPI4  (ICM42688P)
+# SPI4 (ICM42688)
 # ===============================
 
 PE12 SPI4_SCK SPI4
@@ -122,8 +129,8 @@ PD6 USART2_RX USART2
 PD5 USART2_TX USART2
 
 # UART3
-PD0 USART3_RX USART3
-PD1 USART3_TX USART3
+PD9 USART3_RX USART3
+PD8 USART3_TX USART3
 
 # UART6
 PC7 USART6_RX USART6
@@ -159,7 +166,7 @@ PD15 TIM4_CH4 TIM4 PWM(10) GPIO(57)
 # WS2812
 # ===============================
 
-PD7 TIM3_CH4 TIM3 GPIO(95)
+PA8 TIM1_CH1 TIM1 GPIO(95)
 
 # ===============================
 # STORAGE
