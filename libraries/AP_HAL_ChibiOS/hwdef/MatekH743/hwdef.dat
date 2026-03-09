@@ -1,92 +1,196 @@
-# MCU & Board ID
-MCU STM32H7xx STM32H743xx
-APJ_BOARD_ID AP_HW_MATEKH743
+# ===============================
+# MCU
+# ===============================
 
-# 时钟配置 (8MHz 晶振适配)
+MCU STM32H7xx STM32H743xx
+APJ_BOARD_ID AP_HW_H743_CUSTOM
+
 OSCILLATOR_HZ 8000000
-STM32_PLLM_VALUE 8
-STM32_PLLN_VALUE 480
-STM32_PLLP_VALUE 2
-STM32_PLLQ_VALUE 4
-STM32_PLLR_VALUE 2
 
 FLASH_SIZE_KB 2048
 FLASH_RESERVE_START_KB 128
 
-# USB & SWD
+STM32_ST_USE_TIMER 5
+
+# ===============================
+# USB
+# ===============================
+
 PA11 OTG_FS_DM OTG1
 PA12 OTG_FS_DP OTG1
+
+# SWD
 PA13 JTMS-SWDIO SWD
 PA14 JTCK-SWCLK SWD
 
-# --- ADC 定义 ---
-PC0 BATT_VOLTAGE_SENS ADC1 SCALE(1)
-PC1 BATT_CURRENT_SENS ADC1 SCALE(1)
-PC4 PRESSURE_SENS ADC1 SCALE(1)
+SERIAL_ORDER OTG1 UART7 UART1 UART3 UART6 UART8 UART4 UART2
+
+# ===============================
+# LED
+# ===============================
+
+PE3 LED0 OUTPUT LOW GPIO(90)
+PE4 LED1 OUTPUT LOW GPIO(91)
+
+define HAL_GPIO_A_LED_PIN 90
+define HAL_GPIO_B_LED_PIN 91
+
+# ===============================
+# BUZZER
+# ===============================
+
+PA15 BUZZER OUTPUT GPIO(80) LOW
+define HAL_BUZZER_PIN 80
+
+# ===============================
+# ADC (电压 / 电流 / RSSI)
+# ===============================
+
+PC0 BATT_VOLTAGE_SENS ADC1 SCALE(11)
+PC1 BATT_CURRENT_SENS ADC1 SCALE(17)
 PC5 RSSI_ADC ADC1
 
-# --- I2C 总线定义 (新增 I2C2 用于 SPL06) ---
+# ===============================
+# I2C
+# ===============================
+
 PB8 I2C1_SCL I2C1
 PB9 I2C1_SDA I2C1
-PB10 I2C2_SCL I2C2  # 对应原理图 I2C2_SCL
-PB11 I2C2_SDA I2C2  # 对应原理图 I2C2_SDA
+
+PB10 I2C2_SCL I2C2
+PB11 I2C2_SDA I2C2
+
 I2C_ORDER I2C1 I2C2
 
-# --- SPI2 (IMU: ICM20689) ---
+# ===============================
+# BAROMETER
+# ===============================
+
+BARO SPL06 I2C:2:0x76
+
+# ===============================
+# SPI2  (ICM20689)
+# ===============================
+
 PB13 SPI2_SCK SPI2
 PB14 SPI2_MISO SPI2
 PB15 SPI2_MOSI SPI2
-PB12 IMU_CS CS
-PE11 IMU_INT INPUT
 
-# --- LED ---
-PE3 LED0 OUTPUT LOW GPIO(90)
-PE4 LED1 OUTPUT LOW GPIO(91)
-define HAL_GPIO_A_LED_PIN 91
-define HAL_GPIO_B_LED_PIN 90
+PB12 IMU2_CS CS
+PE11 IMU2_INT INPUT
 
-# --- 基础串口 ---
-SERIAL_ORDER OTG1 UART7
+SPIDEV icm20689 SPI2 DEVID1 IMU2_CS MODE3 1*MHZ 8*MHZ
+IMU Invensense SPI:icm20689 INT:IMU2_INT ROTATION_NONE
+
+# ===============================
+# SPI4  (ICM42688P)
+# ===============================
+
+PE2 SPI4_SCK SPI4
+PE5 SPI4_MISO SPI4
+PE6 SPI4_MOSI SPI4
+
+PE4 IMU1_CS CS
+PE1 IMU1_INT INPUT
+
+SPIDEV icm42688 SPI4 DEVID2 IMU1_CS MODE3 1*MHZ 8*MHZ
+IMU Invensensev3 SPI:icm42688 INT:IMU1_INT ROTATION_NONE
+
+# ===============================
+# OSD (SPI2)
+# ===============================
+
+PB12 SPI2_OSD_CS CS
+SPIDEV osd SPI2 DEVID3 SPI2_OSD_CS MODE0 1*MHZ 10*MHZ
+
+# ===============================
+# SD CARD (SDIO)
+# ===============================
+
+PC8 SDIO_D0 SDMMC1
+PC9 SDIO_D1 SDMMC1
+PC10 SDIO_D2 SDMMC1
+PC11 SDIO_D3 SDMMC1
+PC12 SDIO_CK SDMMC1
+PD2 SDIO_CMD SDMMC1
+
+define HAL_OS_FATFS_IO TRUE
+
+# ===============================
+# UART
+# ===============================
+
+# UART7 (ELRS)
 PE7 UART7_RX UART7
 PE8 UART7_TX UART7
 
-# --- 气压计驱动配置 ---
-BARO SPL06 I2C:2:0x76
+# UART1 (GPS)
+PA10 UART1_RX UART1
+PA9 UART1_TX UART1
 
-# --- PWM 输出定义 (全显式格式) ---
+# UART3
+PD9 UART3_RX UART3
+PD8 UART3_TX UART3
 
-# PWM 1-4: 电调
-PB0  TIM1_CH2N TIM1 PWM(1) GPIO(48)
-PB1  TIM1_CH3N TIM1 PWM(2) GPIO(49)
+# UART4
+PA1 UART4_RX UART4
+PA0 UART4_TX UART4
 
-PA0  TIM2_CH1  TIM2 PWM(3) GPIO(50)
-PA1  TIM2_CH2  TIM2 PWM(4) GPIO(51)
+# UART6
+PC7 UART6_RX UART6
+PC6 UART6_TX UART6
 
-# PWM 5-12: 舵机
-PA2  TIM2_CH3  TIM2 PWM(5) GPIO(52)
-PA3  TIM2_CH4  TIM2 PWM(6) GPIO(53)
+# UART8
+PE0 UART8_RX UART8
+PE1 UART8_TX UART8
 
-PD12 TIM4_CH1  TIM4 PWM(7)  GPIO(54)
-PD13 TIM4_CH2  TIM4 PWM(8)  GPIO(55)
-PD14 TIM4_CH3  TIM4 PWM(9)  GPIO(56)
-PD15 TIM4_CH4  TIM4 PWM(10) GPIO(57)
-# --- 舵机输出 PWM 11-12 (切换为 TIM17 定义) ---
+# UART2
+PD6 UART2_RX UART2
+PD5 UART2_TX UART2
+
+# ===============================
+# CAN
+# ===============================
+
+PB5 CAN_RX CAN1
+PB6 CAN_TX CAN1
+
+# ===============================
+# PWM OUTPUT
+# ===============================
+
+PB0 TIM1_CH2N TIM1 PWM(1) GPIO(48)
+PB1 TIM1_CH3N TIM1 PWM(2) GPIO(49)
+
+PA0 TIM2_CH1 TIM2 PWM(3) GPIO(50)
+PA1 TIM2_CH2 TIM2 PWM(4) GPIO(51)
+
+PA2 TIM2_CH3 TIM2 PWM(5) GPIO(52)
+PA3 TIM2_CH4 TIM2 PWM(6) GPIO(53)
+
+PD12 TIM4_CH1 TIM4 PWM(7) GPIO(54)
+PD13 TIM4_CH2 TIM4 PWM(8) GPIO(55)
+PD14 TIM4_CH3 TIM4 PWM(9) GPIO(56)
+PD15 TIM4_CH4 TIM4 PWM(10) GPIO(57)
+
 PE5 TIM15_CH1 TIM15 PWM(11) GPIO(60) NODMA
 PE6 TIM15_CH2 TIM15 PWM(12) GPIO(61) NODMA
-# --- 车灯控制 (定义为 LED 3 和 LED 4) ---
-#PE5 LED3 OUTPUT LOW  # 车灯 1 (对应物理引脚 PWM 11)
-#PE6 LED4 OUTPUT LOW  # 车灯 2 (对应物理引脚 PWM 12)
 
-# 2. SPI 设备表
-SPIDEV icm20689  SPI2 DEVID1 IMU_CS  MODE3  1*MHZ  8*MHZ
+# ===============================
+# WS2812
+# ===============================
 
-# 3. 传感器加载
-IMU Invensense SPI:icm20689 ROTATION_NONE
+PD7 TIM4_CH2 TIM4 GPIO(95)
 
-# 如果不打算焊磁罗盘，取消下面一行的注释以防止报错
-# define HAL_COMPASS_NONE 1
+# ===============================
+# STORAGE
+# ===============================
 
-# 存储与系统
 define HAL_STORAGE_SIZE 32768
 STORAGE_FLASH_PAGE 14
+
+# ===============================
+# BUILD
+# ===============================
+
 env BUILD_ABIN True
