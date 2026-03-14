@@ -1,25 +1,18 @@
 # ===============================
 # MCU
 # ===============================
-
 MCU STM32H7xx STM32H743xx
 APJ_BOARD_ID AP_HW_MATEKH743
-
 OSCILLATOR_HZ 8000000
-
 FLASH_SIZE_KB 2048
 FLASH_RESERVE_START_KB 128
-
 STM32_ST_USE_TIMER 5
 
 # ===============================
 # USB
 # ===============================
-
 PA11 OTG_FS_DM OTG1
 PA12 OTG_FS_DP OTG1
-
-# SWD
 PA13 JTMS-SWDIO SWD
 PA14 JTCK-SWCLK SWD
 
@@ -28,34 +21,29 @@ SERIAL_ORDER OTG1 USART1 USART2 USART3 USART6 UART7 UART8
 # ===============================
 # LED
 # ===============================
-
 PE3 LED0 OUTPUT LOW GPIO(90)
 PE4 LED1 OUTPUT LOW GPIO(91)
-
 define HAL_GPIO_A_LED_PIN 90
 define HAL_GPIO_B_LED_PIN 91
 
 # ===============================
 # BUZZER
 # ===============================
-
 PA15 BUZZER OUTPUT LOW GPIO(80)
 define HAL_BUZZER_PIN 80
 
 # ===============================
 # ADC
 # ===============================
-
 PC0 BATT_VOLTAGE_SENS ADC1 SCALE(11)
 PC1 BATT_CURRENT_SENS ADC1 SCALE(17)
 PC5 RSSI_ADC ADC1
 
 # ===============================
-# GPIO (原 PD0 / PD1)
+# GPIO
 # ===============================
-
-PD0 GPIO OUTPUT LOW
-PD1 GPIO OUTPUT LOW
+PD0 GPIO1 OUTPUT LOW GPIO(70)
+PD1 GPIO2 OUTPUT LOW GPIO(71)
 
 # ===============================
 # I2C
@@ -80,18 +68,12 @@ define HAL_COMPASS_AUTO_ROT_DEFAULT 2
 # ===============================
 BARO SPL06 I2C:0:0x76
 
-
-#SET HAL_I2C_BUS_SPEED_2 100000  # 将 I2C2 强制降速到 100kHz（标准模式）
 # ===============================
 # SPI2 (ICM20689)
 # ===============================
-
-SPI2
-
 PB13 SPI2_SCK SPI2
 PB14 SPI2_MISO SPI2
 PB15 SPI2_MOSI SPI2
-
 PB12 IMU2_CS CS GPIO(72)
 PE10 IMU2_INT INPUT
 
@@ -101,13 +83,9 @@ IMU Invensense SPI:icm20689 ROTATION_NONE
 # ===============================
 # SPI4 (ICM42688)
 # ===============================
-
-SPI4
-
 PE12 SPI4_SCK SPI4
 PE13 SPI4_MISO SPI4
 PE14 SPI4_MOSI SPI4
-
 PE11 IMU1_CS CS GPIO(73)
 PE15 IMU1_INT INPUT
 
@@ -117,7 +95,6 @@ IMU Invensensev3 SPI:icm42688 ROTATION_NONE
 # ===============================
 # SD CARD
 # ===============================
-
 PC8  SDMMC1_D0 SDMMC1
 PC9  SDMMC1_D1 SDMMC1
 PC10 SDMMC1_D2 SDMMC1
@@ -125,75 +102,52 @@ PC11 SDMMC1_D3 SDMMC1
 PC12 SDMMC1_CK SDMMC1
 PD2  SDMMC1_CMD SDMMC1
 
-SDMMC1 SDMMC
-
 # ===============================
 # UART
 # ===============================
-
-# UART1 (GPS)
 PA10 USART1_RX USART1
 PA9  USART1_TX USART1
 
-# UART2
 PD6 USART2_RX USART2
 PD5 USART2_TX USART2
 
-# UART3
 PD9 USART3_RX USART3
 PD8 USART3_TX USART3
 
-# UART6
 PC7 USART6_RX USART6
 PC6 USART6_TX USART6
 
-# UART7 (ELRS)
 PE7 UART7_RX UART7
 PE8 UART7_TX UART7
 
-# UART8
 PE0 UART8_RX UART8
 PE1 UART8_TX UART8
 
 # ===============================
 # PWM OUTPUT
 # ===============================
-
-# PWM OUTPUT
-
-PB0  TIM1_CH2N TIM1 PWM(1) GPIO(48)
-PB1  TIM1_CH3N TIM1 PWM(2) GPIO(49)
-
-PA0  TIM2_CH1  TIM2 PWM(3) GPIO(50)
-PA1  TIM2_CH2  TIM2 PWM(4) GPIO(51)
-
-PA2  TIM2_CH3  TIM2 PWM(5) GPIO(52)
-PA3  TIM2_CH4  TIM2 PWM(6) GPIO(53)
-
-PD12 TIM4_CH1  TIM4 PWM(7) GPIO(54)
-PD13 TIM4_CH2  TIM4 PWM(8) GPIO(55)
-PD14 TIM4_CH3  TIM4 PWM(9) GPIO(56)
+PB0  TIM1_CH2N TIM1 PWM(1)  GPIO(48)
+PB1  TIM1_CH3N TIM1 PWM(2)  GPIO(49)
+PA0  TIM2_CH1  TIM2 PWM(3)  GPIO(50)
+PA1  TIM2_CH2  TIM2 PWM(4)  GPIO(51)
+PA2  TIM2_CH3  TIM2 PWM(5)  GPIO(52)
+PA3  TIM2_CH4  TIM2 PWM(6)  GPIO(53)
+PD12 TIM4_CH1  TIM4 PWM(7)  GPIO(54)
+PD13 TIM4_CH2  TIM4 PWM(8)  GPIO(55)
+PD14 TIM4_CH3  TIM4 PWM(9)  GPIO(56)
 PD15 TIM4_CH4  TIM4 PWM(10) GPIO(57)
 PE5  TIM15_CH1 TIM15 PWM(11) GPIO(60)
 PE6  TIM15_CH2 TIM15 PWM(12) GPIO(61)
-
-#PE5 TIM15_CH1 TIM15 PWM(11) GPIO(60) NODMA
-#PE6 TIM15_CH2 TIM15 PWM(12) GPIO(61) NODMA
-# ===============================
-# WS2812 LED
-# ===============================
-PA8 TIM1_CH1 TIM1 PWM(13) GPIO(62) # for WS2812 LED
-#PA8 TIM1_CH1 TIM1 PWM_SW_2812 GPIO(95)
+PA8  TIM1_CH1  TIM1  PWM(13) GPIO(62)
 
 # ===============================
 # STORAGE
 # ===============================
-
 define HAL_STORAGE_SIZE 32768
+define HAL_OS_FATFS_IO 1
 STORAGE_FLASH_PAGE 14
 
 # ===============================
 # BUILD
 # ===============================
-
 env BUILD_ABIN True
