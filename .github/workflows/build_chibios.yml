@@ -1,0 +1,182 @@
+name: build chibios
+
+on:
+  push:
+    paths-ignore:
+      - 'libraries/AP_HAL_Linux/**'
+      - 'libraries/AP_HAL_ESP32/**'
+      - 'libraries/AP_HAL_SITL/**'
+      - 'Tools/CHDK-Script/**'
+      - 'Tools/CodeStyle/**'
+      - 'Tools/completion/**'
+      - 'Tools/debug/**'
+      - 'Tools/environment_install/**'
+      - 'Tools/FilterTestTool/**'
+      - 'Tools/Frame_params/**'
+      - 'Tools/geotag/**'
+      - 'Tools/GIT_Test/**'
+      - 'Tools/gittools/**'
+      - 'Tools/Hello/**'
+      - 'Tools/mavproxy_modules/**'
+      - 'Tools/Pozyx/**'
+      - 'Tools/PrintVersion.py'
+      - 'Tools/Replay/**'
+      - 'Tools/simulink/**'
+      - 'Tools/UDP_Proxy/**'
+      - 'Tools/vagrant/**'
+      - 'Tools/Vicon/**'
+      - 'Tools/autotest/antennatracker.py'
+      - 'Tools/autotest/arduplane.py'
+      - 'Tools/autotest/ardusub.py'
+      - 'Tools/autotest/balancebot.py'
+      - 'Tools/autotest/location.txt'
+      - 'Tools/autotest/quadplane.py'
+      - 'Tools/autotest/rover.py'
+      - 'Tools/autotest/sailboat.py'
+      - 'Tools/autotest/swarminit.txt'
+      - '**.md'
+      - './.dir-locals.el'
+      - './.dockerignore'
+      - './.editorconfig'
+      - './.flake8'
+      - './.gitattributes'
+      - './.github'
+      - './.gitignore'
+      - './.pre-commit-config.yaml'
+      - './.pydevproject'
+      - './.valgrind-suppressions'
+      - './.valgrindrc'
+      - 'Dockerfile'
+      - 'Vagrantfile'
+      - 'Makefile'
+      - '.vscode/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/workflows/test_environment.yml'
+
+  pull_request:
+    paths-ignore:
+      - 'libraries/AP_HAL_Linux/**'
+      - 'libraries/AP_HAL_ESP32/**'
+      - 'libraries/AP_HAL_SITL/**'
+      - 'Tools/CHDK-Script/**'
+      - 'Tools/CodeStyle/**'
+      - 'Tools/completion/**'
+      - 'Tools/debug/**'
+      - 'Tools/environment_install/**'
+      - 'Tools/FilterTestTool/**'
+      - 'Tools/Frame_params/**'
+      - 'Tools/geotag/**'
+      - 'Tools/GIT_Test/**'
+      - 'Tools/gittools/**'
+      - 'Tools/Hello/**'
+      - 'Tools/LogAnalyzer/**'
+      - 'Tools/mavproxy_modules/**'
+      - 'Tools/Pozyx/**'
+      - 'Tools/PrintVersion.py'
+      - 'Tools/Replay/**'
+      - 'Tools/simulink/**'
+      - 'Tools/UDP_Proxy/**'
+      - 'Tools/vagrant/**'
+      - 'Tools/Vicon/**'
+      - 'Tools/autotest/antennatracker.py'
+      - 'Tools/autotest/arduplane.py'
+      - 'Tools/autotest/ardusub.py'
+      - 'Tools/autotest/autotest.py'
+      - 'Tools/autotest/balancebot.py'
+      - 'Tools/autotest/common.py'
+      - 'Tools/autotest/examples.py'
+      - 'Tools/autotest/quadplane.py'
+      - 'Tools/autotest/rover.py'
+      - 'Tools/autotest/sailboat.py'
+      - 'Tools/autotest/**.txt'
+      - 'Tools/autotest/logger_metadata/**'
+      - 'Tools/autotest/param_metadata/**'
+      - '**.md'
+      - './.dir-locals.el'
+      - './.dockerignore'
+      - './.editorconfig'
+      - './.flake8'
+      - './.gitattributes'
+      - './.github'
+      - './.gitignore'
+      - './.pre-commit-config.yaml'
+      - './.pydevproject'
+      - './.valgrind-suppressions'
+      - './.valgrindrc'
+      - 'Dockerfile'
+      - 'Vagrantfile'
+      - 'Makefile'
+      - '.vscode/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/workflows/test_environment.yml'
+
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{github.workflow}}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [MatekH743]
+        toolchain: [chibios]
+        gcc: [10]
+
+    steps:
+      # 第一步：checkout 你自己的仓库（只取 hwdef 文件）
+      - name: Checkout My hwdef
+        uses: actions/checkout@v4
+        with:
+          path: myhwdef
+
+      # 第二步：clone 指定版本的 ArduPilot 官方源码
+      # 修改 ref 可以切换版本，例如：
+      #   ArduRover-4.5.7  （稳定版，推荐）
+      #   ArduRover-4.4.0
+      #   master           （最新开发版，可能不稳定）
+      - name: Checkout ArduPilot
+        uses: actions/checkout@v4
+        with:
+          repository: ArduPilot/ardupilot
+          ref: ArduRover-4.5.7
+          submodules: recursive
+          path: ardupilot
+
+      # 第三步：用你的 hwdef 替换官方的
+      - name: Copy hwdef
+        run: |
+          cp myhwdef/libraries/AP_HAL_ChibiOS/hwdef/MatekH743/hwdef.dat \
+             ardupilot/libraries/AP_HAL_ChibiOS/hwdef/MatekH743/hwdef.dat
+
+      # 第四步：编译并合并 bootloader
+      - name: Build and Manual Merge HEX
+        shell: bash
+        working-directory: ardupilot
+        run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}/ardupilot
+          PATH="/opt/gcc-arm-none-eabi-10/bin:$PATH"
+
+          rm -rf build/
+
+          ./modules/waf/waf-light configure --board MatekH743
+          ./modules/waf/waf-light rover
+
+          dd if=/dev/zero bs=1k count=128 | tr "\000" "\377" > padding.bin
+          dd if=Tools/bootloaders/MatekH743_bl.bin of=padding.bin conv=notrunc
+          cat padding.bin build/MatekH743/bin/ardurover.bin > merged.bin
+          arm-none-eabi-objcopy -I binary -O ihex --change-address 0x08000000 \
+            merged.bin build/MatekH743/bin/ardurover_with_bl.hex
+
+          echo "Build complete: ArduRover-4.5.7 with custom hwdef"
+
+      # 第五步：上传固件
+      - name: Upload Final Firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: MatekH743-Ready-To-Flash
+          path: ardupilot/build/MatekH743/bin/ardurover_with_bl.hex
