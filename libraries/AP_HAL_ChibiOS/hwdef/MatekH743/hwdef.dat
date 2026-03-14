@@ -60,26 +60,18 @@ PD1 GPIO OUTPUT LOW
 # ===============================
 # I2C
 # ===============================
-PB6  I2C1_SCL I2C1
-PB7  I2C1_SDA I2C1
+
+# two I2C bus
+I2C_ORDER I2C2 I2C1
+
+# I2C1
+PB6 I2C1_SCL I2C1
+PB7 I2C1_SDA I2C1
+
+# I2C2
 PB10 I2C2_SCL I2C2
 PB11 I2C2_SDA I2C2
 
-I2C_ORDER I2C1 I2C2
-
-# ===============================
-# COMPASS
-# ===============================
-define ALLOW_ARM_NO_COMPASS
-define AP_COMPASS_PROBING_ENABLED 1
-define HAL_I2C_INTERNAL_MASK 0
-define HAL_COMPASS_AUTO_ROT_DEFAULT 2
-COMPASS QMC5883L I2C:0:0x0D false ROTATION_NONE
-
-# ===============================
-# BAROMETER (SPL06 on I2C2 = Bus 1)
-# ===============================
-BARO SPL06 I2C:1:0x76
 
 #SET HAL_I2C_BUS_SPEED_2 100000  # 将 I2C2 强制降速到 100kHz（标准模式）
 # ===============================
@@ -174,13 +166,15 @@ PD12 TIM4_CH1  TIM4 PWM(7) GPIO(54)
 PD13 TIM4_CH2  TIM4 PWM(8) GPIO(55)
 PD14 TIM4_CH3  TIM4 PWM(9) GPIO(56)
 PD15 TIM4_CH4  TIM4 PWM(10) GPIO(57)
+PE5  TIM15_CH1 TIM15 PWM(11) GPIO(60)
+PE6  TIM15_CH2 TIM15 PWM(12) GPIO(61)
 
 #PE5 TIM15_CH1 TIM15 PWM(11) GPIO(60) NODMA
 #PE6 TIM15_CH2 TIM15 PWM(12) GPIO(61) NODMA
 # ===============================
 # WS2812 LED
 # ===============================
-
+PA8 TIM1_CH1 TIM1 PWM(13) GPIO(62) # for WS2812 LED
 #PA8 TIM1_CH1 TIM1 PWM_SW_2812 GPIO(95)
 
 # ===============================
