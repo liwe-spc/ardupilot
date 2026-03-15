@@ -89,7 +89,7 @@ PB12 IMU2_CS CS GPIO(72)
 PE10 IMU2_INT INPUT
 
 SPIDEV icm20689 SPI2 DEVID1 IMU2_CS MODE3 1*MHZ 8*MHZ
-IMU Invensense SPI:icm20689 ROTATION_NONE
+IMU Invensense SPI:icm20689 ROTATION_YAW_90
 
 # ===============================
 # SPI4 (ICM42688) - not installed, pins reserved
