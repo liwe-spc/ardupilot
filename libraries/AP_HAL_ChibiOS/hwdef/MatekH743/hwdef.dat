@@ -8,16 +8,21 @@ FLASH_SIZE_KB 2048
 FLASH_RESERVE_START_KB 128
 STM32_ST_USE_TIMER 5
 
-# 节省内存
-define HAL_NAVEKF2_AVAILABLE 0
-define HAL_LOGGING_DATAFLASH_ENABLED 0
-define AP_SCRIPTING_ENABLED 0
-define HAL_MOUNT_ENABLED 0
-define HAL_RUNCAM_ENABLED 0
-define HAL_PARACHUTE_ENABLED 0
-define HAL_BUTTON_ENABLED 0
-define AP_AIRSPEED_ENABLED 0
-define HAL_ADSB_ENABLED 0
+# 节省内存（按需保留，以下四项必须打开）
+define HAL_NAVEKF2_AVAILABLE 0        # 继续关，用 EKF3 够了
+define HAL_LOGGING_DATAFLASH_ENABLED 1  # 改为 1，调试阶段需要日志
+define AP_SCRIPTING_ENABLED 1           # 改为 1，Lua 混控
+define HAL_MOUNT_ENABLED 0             # 继续关
+define HAL_RUNCAM_ENABLED 0            # 继续关
+define HAL_PARACHUTE_ENABLED 0         # 继续关
+define HAL_BUTTON_ENABLED 0            # 继续关
+define AP_AIRSPEED_ENABLED 0           # 继续关
+define HAL_ADSB_ENABLED 0              # 继续关
+
+# 新增：MS200K 避障所需
+define AP_RANGEFINDER_ENABLED 1        # 测距仪驱动（MS200K 走这里）
+define AP_PROXIMITY_ENABLED 1          # 感知层，把雷达数据转为 360° 障碍地图
+define AC_AVOIDANCE_ENABLED 1          # 避障逻辑，Simple Avoidance
 
 # ===============================
 # USB
